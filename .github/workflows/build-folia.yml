@@ -1,0 +1,34 @@
+name: Build Folia
+on:
+  push:
+    branches:
+      - feat/folia
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          cache: gradle
+          java-version: 21
+
+      - name: Build
+        run: ./gradlew build -x test
+
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: FastAsyncWorldEdit-Folia-SNAPSHOT
+          path: |
+            worldedit-bukkit/build/libs/FastAsyncWorldEdit-*.jar
+            worldedit-core/build/libs/worldedit-core-*.jar

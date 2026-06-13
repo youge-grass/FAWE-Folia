@@ -338,11 +338,12 @@ public class PaperweightGetBlocks extends AbstractBukkitGetBlocks<ServerLevel, L
 
     @Override
     protected <T extends Future<T>> T internalCall(
-            IChunkSet set,
-            Runnable finalizer,
-            int copyKey,
-            LevelChunk nmsChunk,
-            ServerLevel nmsWorld) throws Exception {
+            final IChunkSet set,
+            final Runnable finalizer,
+            final int copyKey,
+            final LevelChunk nmsChunk,
+            final ServerLevel nmsWorld
+    ) throws Exception {
         PaperweightGetBlocks_Copy copy = createCopy ? new PaperweightGetBlocks_Copy(nmsChunk) : null;
         if (createCopy) {
             if (copies.containsKey(copyKey)) {
@@ -683,30 +684,44 @@ public class PaperweightGetBlocks extends AbstractBukkitGetBlocks<ServerLevel, L
                                 entity.load(input);
                                 entity.absSnapTo(x, y, z, yaw, pitch);
                                 entity.setUUID(NbtUtils.uuid(nativeTag));
+                                Runnable onError = () -> LOGGER.warn(
+                                        "Error creating entity of type `{}` in world `{}` at location `{},{},{}`",
+                                        id,
+                                        nmsWorld.getWorld().getName(),
+                                        x,
+                                        y,
+                                        z
+                                );
+                                if (!set.getSideEffectSet().shouldApply(SideEffect.ENTITY_EVENTS)) {
+                                    entity.spawnReason = CreatureSpawnEvent.SpawnReason.CUSTOM;
+                                    entity.generation = false;
+                                    if (PaperLib.isPaper()) {
+                                        if (!nmsWorld.moonrise$getEntityLookup().addNewEntity(entity, false)) {
+                                            onError.run();
+                                        }
+                                        continue;
+                                    }
+                                    // Not paper
+                                    try {
+                                        PaperweightPlatformAdapter.getEntitySectionManager(nmsWorld).addNewEntity(entity);
+                                        continue;
+                                    } catch (IllegalAccessException e) {
+                                        // Fallback
+                                        LOGGER.warn("Error bypassing entity events on spawn on Spigot", e);
+                                    }
+                                }
                                 if (FoliaLibHolder.isFolia()) {
                                     Location location = new Location(nmsWorld.getWorld(), x, y, z);
                                     FoliaLibHolder.getScheduler().runAtLocation(location, scheduledTask -> {
                                         if (!nmsWorld.addFreshEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
-                                            LOGGER.warn(
-                                                    "Error creating entity of type `{}` in world `{}` at location `{},{},{}`",
-                                                    id,
-                                                    nmsWorld.getWorld().getName(),
-                                                    x,
-                                                    y,
-                                                    z);
+                                            onError.run();
                                             // Unsuccessful create should not be saved to history
                                             iterator.remove();
                                         }
                                     });
                                 } else {
                                     if (!nmsWorld.addFreshEntity(entity, CreatureSpawnEvent.SpawnReason.CUSTOM)) {
-                                        LOGGER.warn(
-                                                "Error creating entity of type `{}` in world `{}` at location `{},{},{}`",
-                                                id,
-                                                nmsWorld.getWorld().getName(),
-                                                x,
-                                                y,
-                                                z);
+                                        onError.run();
                                         // Unsuccessful create should not be saved to history
                                         iterator.remove();
                                     }
