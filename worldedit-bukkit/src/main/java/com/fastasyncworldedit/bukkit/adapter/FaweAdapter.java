@@ -16,8 +16,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +39,11 @@ public abstract class FaweAdapter<TAG, SERVER_LEVEL> extends CachedBukkitAdapter
 
     protected FaweAdapter(final BukkitImplAdapter<TAG> parent) {
         this.parent = parent;
+    }
+
+    @Override
+    public void initializeRegistries() {
+        parent.initializeRegistries();
     }
 
     @Override

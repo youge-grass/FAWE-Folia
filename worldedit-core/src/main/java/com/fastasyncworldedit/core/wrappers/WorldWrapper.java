@@ -40,9 +40,11 @@ import com.sk89q.worldedit.world.block.BlockStateHolder;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.generation.ConfiguredFeatureType;
 import com.sk89q.worldedit.world.generation.StructureType;
+import com.sk89q.worldedit.world.generation.TreeType;
 import com.sk89q.worldedit.world.weather.WeatherType;
 
 import javax.annotation.Nullable;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -94,6 +96,11 @@ public class WorldWrapper extends AbstractWorld {
     @Override
     public boolean useItem(BlockVector3 position, BaseItem item, Direction face) {
         return parent.useItem(position, item, face);
+    }
+
+    @Override
+    public Path getStoragePath() {
+        return parent.getStoragePath();
     }
 
     @Override
@@ -295,8 +302,13 @@ public class WorldWrapper extends AbstractWorld {
     }
 
     @Override
-    public boolean generateStructure(final StructureType type, final EditSession editSession,
-            final BlockVector3 position) {
+    public boolean generateTree(final TreeType type, final EditSession editSession, final BlockVector3 position) throws
+            MaxChangedBlocksException {
+        return parent.generateTree(type, editSession, position);
+    }
+
+    @Override
+    public boolean generateStructure(final StructureType type, final EditSession editSession, final BlockVector3 position) {
         return parent.generateStructure(type, editSession, position);
     }
 
