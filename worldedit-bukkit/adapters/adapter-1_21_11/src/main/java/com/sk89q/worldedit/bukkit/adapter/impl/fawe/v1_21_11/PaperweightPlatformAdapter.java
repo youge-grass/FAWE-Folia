@@ -486,7 +486,6 @@ public final class PaperweightPlatformAdapter extends NMSAdapter {
             }
 
             // Create palette with data
-            var strategy = Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY);
             var packedData = new PalettedContainerRO.PackedData<>(palette, Optional.ofNullable(bits));
             DataResult<PalettedContainer<net.minecraft.world.level.block.state.BlockState>> result;
             if (PaperLib.isPaper()) {

@@ -675,13 +675,7 @@ public final class PaperweightPlatformAdapter extends NMSAdapter {
                     .orElse(Collections.emptyList());
         }
         try {
-<<<<<<< HEAD
-            // noinspection unchecked
-            return ((PersistentEntitySectionManager<Entity>) (SERVER_LEVEL_ENTITY_MANAGER.get(chunk.level)))
-                    .getEntities(chunk.getPos());
-=======
             return getEntitySectionManager(chunk.level).getEntities(chunk.getPos());
->>>>>>> upstream/main
         } catch (IllegalAccessException e) {
             throw new RuntimeException("Failed to lookup entities [PAPER=false]", e);
         }
